@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include "tui.h"
 
 FILE *parse_args(int argc, char **argv) {
     FILE *fp;
@@ -19,23 +20,8 @@ FILE *parse_args(int argc, char **argv) {
     return fp;
 }
 
-void init_tui() {
-    initscr();
-    noecho();
-    cbreak();
-    keypad(stdscr, TRUE);
-}
-
-void end_tui() {
-    nocbreak();
-    keypad(stdscr, FALSE);
-    echo();
-    endwin();
-}
-
 unsigned char *get_file_content(FILE *fp) {
     long size;
-    unsigned char byte;
     unsigned char *content;
 
     fseek(fp, 0, SEEK_END);
@@ -56,11 +42,13 @@ unsigned char *get_file_content(FILE *fp) {
 int main(int argc, char **argv) {
     FILE *fp;
     unsigned char *content;
+    unsigned char byte;
+    unsigned long i;
 
     fp = parse_args(argc, argv);
     content = get_file_content(fp);
     init_tui();
-    
+
 
     end_tui();
 
