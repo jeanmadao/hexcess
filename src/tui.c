@@ -4,6 +4,10 @@
 
 void init_tui() {
     initscr();
+    if (has_colors()) {
+        start_color();
+        use_default_colors();
+    }
     noecho();
     cbreak();
     keypad(stdscr, TRUE);
@@ -21,7 +25,7 @@ void end_tui() {
 void set_windows_props(struct win *hex_win,
                        struct win *plain_win,
                        struct win *controls_win) {
-    controls_win->nlines = 5;
+    controls_win->nlines = 1;
     controls_win->ncols = COLS;
     controls_win->begin_y = LINES - controls_win->nlines;
     controls_win->begin_x = 0;
@@ -37,8 +41,26 @@ void set_windows_props(struct win *hex_win,
     plain_win->begin_x = hex_win->ncols;
 }
 
-void init_windows(struct win *hex_win, struct win *plain_win,
+void decorate_windows(struct win *hex_win, struct win *plain_win,
                   struct win *controls_win) {
+    init_pair(1, COLOR_GREEN, -1);
+    init_pair(2, COLOR_BLUE, -1);
+    init_pair(3, COLOR_BLUE, COLOR_GREEN);
+    wattrset(hex_win->window, COLOR_PAIR(2));
+    wattrset(plain_win->window, COLOR_PAIR(1));
+    wbkgd(controls_win->window, COLOR_PAIR(3));
+
+    wborder_set(hex_win->window, 0, 0, 0, 0, 0, 0, 0, 0);
+    wborder_set(plain_win->window, 0, 0, 0, 0, 0, 0, 0, 0);
+
+    /*wrefresh(hex_win->window);*/
+    /*wrefresh(plain_win->window);*/
+    /*wrefresh(controls_win->window);*/
+}
+
+
+void init_windows(struct win *hex_win, struct win *plain_win,
+                  struct win *controls_win, struct nav *navigation) {
 
     set_windows_props(hex_win, plain_win, controls_win);
     hex_win->window = newwin(hex_win->nlines, hex_win->ncols,
@@ -48,19 +70,16 @@ void init_windows(struct win *hex_win, struct win *plain_win,
     controls_win->window = newwin(controls_win->nlines, controls_win->ncols,
                       controls_win->begin_y, controls_win->begin_x);
 
-    /*box(hex_win->window, 0, 0);*/
-    wborder_set(hex_win->window, 0, 0, 0, 0, "\u256d", 0, 0, 0);
-    box(plain_win->window, 0, 0);
-    box(controls_win->window, 0,0);
+    navigation->active_win = HEX;
+    navigation->x = 0;
+    navigation->y = 0;
+    navigation->max_x = 16;
+    navigation->max_y = hex_win->nlines - 2;
 
-    refresh();
-    wrefresh(hex_win->window);
-    wrefresh(plain_win->window);
-    wrefresh(controls_win->window);
 }
 
 void resize_windows(struct win *hex_win, struct win *plain_win,
-                  struct win *controls_win) {
+                  struct win *controls_win, struct nav *navigation) {
 
     set_windows_props(hex_win, plain_win, controls_win);
 
@@ -75,42 +94,77 @@ void resize_windows(struct win *hex_win, struct win *plain_win,
     wclear(hex_win->window);
     wclear(plain_win->window);
     wclear(controls_win->window);
+    navigation->max_y = hex_win->nlines - 2;
 
-    box(hex_win->window, 0, 0);
-    box(plain_win->window, 0, 0);
-    box(controls_win->window, 0, 0);
 
-    /*wborder(hex_win->window, '│', '│', chtype, chtype, chtype, chtype, chtype, chtype)*/
-    wborder(hex_win->window, '|', '|', '-', '-', '+', '+', '+', '+');
-
-    refresh();
-    wrefresh(hex_win->window);
-    wrefresh(plain_win->window);
-    wrefresh(controls_win->window);
 }
 
 void display_windows(struct win *hex_win, struct win *plain_win, 
-                     struct win *controls_win, unsigned char *content,
-                     unsigned long content_len) {
-    const int BYTES_PER_LINE = 16;
-    const int DISPLAY_LINES = hex_win->nlines - 2;
+                     struct win *controls_win, struct nav *navigation,
+                     unsigned char *content, unsigned long content_len) {
     const int START_BYTE_INDEX = 0;
     unsigned char byte;
 
-    for (int i = 0; i < DISPLAY_LINES; i++) {
-        mvwprintw(hex_win->window, 1 + i, 2, "%08x: ", i * BYTES_PER_LINE);
-        for (int j = START_BYTE_INDEX; j < BYTES_PER_LINE; j++) {
-            byte = content[i * BYTES_PER_LINE +j];
+
+    decorate_windows(hex_win, plain_win, controls_win);
+    for (int i = 0; i < navigation->max_y & i * navigation->max_x < content_len ; i++) {
+        mvwprintw(hex_win->window, 1 + i, 2, "%08x: ", i * navigation->max_x);
+        for (int j = START_BYTE_INDEX; j < navigation->max_x & i * navigation->max_x + j < content_len; j++) {
+            byte = content[i * navigation->max_x + j];
             mvwprintw(hex_win->window, 1 + i, 12 + j*2 + j/2, "%02x", byte);
-            if ((byte < 21) | (byte > 126)) {
+            if ((byte < 33) | (byte > 126)) {
                 byte = '.';
             }
             mvwprintw(plain_win->window, 1 + i, 2 + j, "%c", byte);
         }
     }
-
-    wrefresh(hex_win->window);
-    wrefresh(plain_win->window);
-    refresh();
+    navigation->byte = content[navigation->y * navigation->max_x + navigation->x];
 }
 
+void move_cursor(struct nav *navigation, enum dir direction, struct win *hex_win,
+                 struct win *plain_win, unsigned char *content) {
+    mvwprintw(hex_win->window, 1 + navigation->y, 12 + navigation->x*2 + navigation->x/2, "%02x", navigation->byte);
+    if (navigation->byte < 33 | navigation->byte > 126) {
+        mvwprintw(plain_win->window, 1 + navigation->y, 2 + navigation->x, ".");
+    } else {
+        mvwprintw(plain_win->window, 1 + navigation->y, 2 + navigation->x, "%c", navigation->byte);
+    }
+    switch (direction) {
+        case LEFT:
+            if (navigation->x > 0) {
+                navigation->x--;
+            }
+            break;
+        case RIGHT:
+            if (navigation->x < navigation->max_x - 1) {
+                navigation->x++;
+            }
+            break;
+        case UP:
+            if (navigation->y > 0) {
+                navigation->y--;
+            }
+            break;
+        case DOWN:
+            if (navigation->y < navigation->max_y - 1) {
+                navigation->y++;
+            }
+            break;
+    }
+    navigation->byte = content[navigation->y * navigation->max_x + navigation->x];
+}
+
+void display_cursor(struct nav *navigation, struct win *hex_win,
+                    struct win *plain_win) {
+    wattron(hex_win->window, A_STANDOUT | A_BLINK);
+    mvwprintw(hex_win->window, 1 + navigation->y, 12 + navigation->x*2 + navigation->x/2, "%02x", navigation->byte);
+    wattroff(hex_win->window, A_STANDOUT | A_BLINK);
+
+    wattron(plain_win->window, A_STANDOUT);
+    if (navigation->byte < 33 | navigation->byte > 126) {
+        mvwprintw(plain_win->window, 1 + navigation->y, 2 + navigation->x, ".");
+    } else {
+        mvwprintw(plain_win->window, 1 + navigation->y, 2 + navigation->x, "%c", navigation->byte);
+    }
+    wattroff(plain_win->window, A_STANDOUT);
+}
