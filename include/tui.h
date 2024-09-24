@@ -3,8 +3,18 @@
 
 #include <ncurses.h>
 
+struct win {
+    WINDOW *window;
+    int nlines;
+    int ncols;
+    int begin_y;
+    int begin_x;
+};
+
 void init_tui();
 void end_tui();
-WINDOW *init_windows(int height, int width);
-
+void init_windows(struct win *, struct win *, struct win *);
+void resize_windows(struct win *, struct win *, struct win *);
+void display_windows(struct win *, struct win *, struct win *,
+        unsigned char *, unsigned long);
 #endif

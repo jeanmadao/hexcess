@@ -18,22 +18,21 @@ FILE *parse_args(int argc, char **argv) {
     return fp;
 }
 
-unsigned char *get_file_content(FILE *fp) {
-    long size;
-    unsigned char *content;
+unsigned long get_file_content(FILE *fp, unsigned char **content) {
+    unsigned long size;
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp); // get current file pointer
     fseek(fp, 0, SEEK_SET);
-    content = (unsigned char *)malloc(size);
+    *content = (unsigned char *)malloc(size);
 
-    if (content == NULL) {
+    if (*content == NULL) {
         perror("Could not allocate memory.");
         exit(1);
     }
 
-    fread(content, 1, size, fp);
+    fread(*content, 1, size, fp);
 
-    return content;
+    return size;
 }
 

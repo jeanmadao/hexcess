@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-FILE *parse_args(int argc, char **argv);
-unsigned char *get_file_content(FILE *fp);
+FILE *parse_args(int, char **);
+unsigned long get_file_content(FILE *, unsigned char **);
 
 #endif

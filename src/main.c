@@ -6,28 +6,28 @@
 int main(int argc, char **argv) {
     FILE *fp;
     unsigned char *content;
-    WINDOW *current_win;
+    unsigned long content_len;
+    struct win hex_win, plain_win, controls_win;
     int key;
 
     fp = parse_args(argc, argv);
-    content = get_file_content(fp);
+    content_len = get_file_content(fp, &content);
     init_tui();
+    init_windows(&hex_win, &plain_win, &controls_win);
+    display_windows(&hex_win, &plain_win, &controls_win, content, content_len);
 
-
-    refresh();
-    current_win = init_windows(LINES, COLS);
     while(1) {
-
         key = getch();
         switch(key) {
             case KEY_UP:
-                printw("%d %d\n", COLS, LINES);
                 break;
             case KEY_RESIZE:
-                printw("resize!\n");
+                resize_windows(&hex_win, &plain_win, &controls_win);
+                display_windows(&hex_win, &plain_win, &controls_win, content, content_len);
                 break;
         }
     }
+    fclose(fp);
     end_tui();
 
     return 0;
