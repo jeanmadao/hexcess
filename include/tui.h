@@ -11,6 +11,10 @@ struct win {
     int begin_x;
 };
 
+struct nav {
+
+};
+
 void init_tui();
 void end_tui();
 void init_windows(struct win *, struct win *, struct win *);

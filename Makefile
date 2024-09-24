@@ -1,6 +1,7 @@
 NAME			:= hexcess
 CC				:= gcc
 CFLAGS			:= -Wall -Wextra #-Werror
+FLAGS			:= -DNCURSES_WIDECHAR=1
 SRC_DIR 		:= src
 BUILD_DIR 		:= build
 INCLUDE_DIR 	:= include
@@ -16,7 +17,7 @@ $(NAME): $(OBJS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDE) $(BUILD_DIR)
 	@echo "Compiling: $@"
-	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c -o $@ $<
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) $(FLAGS)  -c -o $@ $<
 
 $(BUILD_DIR):
 	mkdir $@

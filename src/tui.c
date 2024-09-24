@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <curses.h>
 #include "../include/tui.h"
 
 void init_tui() {
@@ -6,12 +7,14 @@ void init_tui() {
     noecho();
     cbreak();
     keypad(stdscr, TRUE);
+    curs_set(0);
 }
 
 void end_tui() {
     nocbreak();
     keypad(stdscr, FALSE);
     echo();
+    curs_set(1);
     endwin();
 }
 
@@ -45,7 +48,8 @@ void init_windows(struct win *hex_win, struct win *plain_win,
     controls_win->window = newwin(controls_win->nlines, controls_win->ncols,
                       controls_win->begin_y, controls_win->begin_x);
 
-    box(hex_win->window, 0, 0);
+    /*box(hex_win->window, 0, 0);*/
+    wborder_set(hex_win->window, 0, 0, 0, 0, "\u256d", 0, 0, 0);
     box(plain_win->window, 0, 0);
     box(controls_win->window, 0,0);
 
@@ -75,6 +79,9 @@ void resize_windows(struct win *hex_win, struct win *plain_win,
     box(hex_win->window, 0, 0);
     box(plain_win->window, 0, 0);
     box(controls_win->window, 0, 0);
+
+    /*wborder(hex_win->window, '│', '│', chtype, chtype, chtype, chtype, chtype, chtype)*/
+    wborder(hex_win->window, '|', '|', '-', '-', '+', '+', '+', '+');
 
     refresh();
     wrefresh(hex_win->window);
