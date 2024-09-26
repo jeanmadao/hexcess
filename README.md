@@ -1,7 +1,7 @@
 # hexcess
 ## Description
 > [!WARNING]
-> Hexcess is still in its early phase, therefore a lot of features are missing
+> hexcess is still in its early phase, therefore a lot of features are missing
 > for now. Please keep that in mind when using Hexcess!
 
 hexcess is a (yet another) Ncurses-based hex viewer, and soon editor as well.
@@ -13,6 +13,7 @@ easily, more will be supported soon.
 ## Build
 ```bash
 git clone https://github.com/jeanmadao/hexcess.git
+cd hexcess
 make
 ```
 
