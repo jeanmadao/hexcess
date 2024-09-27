@@ -319,7 +319,7 @@ void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
                     i++;
                 }
             }
-            if (cur->i == settings->hex_nlines - 1 && (int)cur->j > j - 1) {
+            if (j > 0 && cur->i == settings->hex_nlines - 1 && (int)cur->j > j - 1) {
                 cur->j = j - 1;
             }
 
