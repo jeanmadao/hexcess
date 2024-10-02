@@ -133,7 +133,6 @@ void print_byte(WINDOW *hex_win, WINDOW *plain_win, unsigned int *i,
                 unsigned int *j, settings *sett, unsigned int index,
                 unsigned char *content) {
     unsigned char byte;
-
     if (*j == 0) {
         print_row_index(hex_win, sett->top_line_index + *i * sett->bytes_per_line,
                         *i, A_NORMAL);
@@ -274,6 +273,11 @@ void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
 
     target_top_line_index = (int)sett->top_line_index + value * (int)sett->bytes_per_line;
     max_top_line_index = content_len - (sett->hex_nlines - 1) * sett->bytes_per_line - content_len%sett->bytes_per_line;
+    if (content_len%sett->bytes_per_line == 0) {
+        max_top_line_index -= sett->bytes_per_line;
+
+    }
+
     if (target_top_line_index < 0) {
         value -= target_top_line_index / (int)sett->bytes_per_line;
         target_top_line_index = 0;
