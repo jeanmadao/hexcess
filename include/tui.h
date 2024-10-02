@@ -63,8 +63,11 @@ void resize_windows(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,
 void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
         settings * sett, unsigned char *content,
         unsigned long content_len,  cursor *cur);
+int replace_byte(WINDOW *hex_win, WINDOW *plain_win, cursor *cur,
+            unsigned int i, unsigned int j, unsigned char *content,
+            settings *sett);
 void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,
-        cursor *cur, settings * sett, unsigned char *content,
-        unsigned long content_len, int *run);
+        cursor *cur, settings *sett, unsigned char *content,
+        unsigned long content_len, int *run, char *filename);
 
 #endif

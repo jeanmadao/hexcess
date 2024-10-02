@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <curses.h>
 #include "../include/tui.h"
+#include "../include/utils.h"
 #include <locale.h>
 
 void init_tui() {
@@ -318,18 +319,29 @@ void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
 }
 
 
-void replace_byte(WINDOW *hex_win, cursor *cur, unsigned int i, unsigned j) {
+int replace_byte(WINDOW *hex_win, WINDOW *plain_win, cursor *cur,
+                 unsigned int i, unsigned int j, unsigned char *content,
+                 settings *sett) {
     unsigned char byte_hex[2];
+    unsigned char byte;
+    int res = -1;
+
     mvwprintw(hex_win, i, 11 + j * 2 + j/2, "  ");
     for (unsigned int k=0; k < 2; k++){
         byte_hex[k] = wgetch(hex_win);
         mvwaddch(hex_win ,i, 11 + j * 2 + j/2 + k, byte_hex[k]);
     }
-
+    if (hex_to_byte(byte_hex, &byte) == 0) {
+        content[sett->top_line_index + cur->i * sett->bytes_per_line + cur->j] = byte;
+        display_cursor(hex_win, plain_win, cur, byte);
+        res = 0;
+    }
+    return res;
 }
 
-void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,cursor *cur, settings *sett,
-                unsigned char *content, unsigned long content_len, int *run) {
+void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,
+                cursor *cur, settings *sett, unsigned char *content,
+                unsigned long content_len, int *run, char *filename) {
     int key;
 
     key = getch();
@@ -363,7 +375,7 @@ void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,cursor 
             move_cursor(hex_win, plain_win, cur, sett, content, content_len, cur->i, sett->bytes_per_line - 1);
             break;
         case 'r':
-            replace_byte(hex_win, cur, cur->i, cur->j);
+            replace_byte(hex_win, plain_win, cur, cur->i, cur->j, content, sett);
             break;
         /*case 'G':*/
         /*    break;*/
@@ -387,6 +399,9 @@ void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,cursor 
             break;
         case ctrl('u'):
             scroll_windows(hex_win, plain_win, -(sett->hex_nlines / 2), sett, content, content_len, cur);
+            break;
+        case ctrl('s'):
+            mvprintw(0, 0, "%lu", save_file(content, content_len, filename));
             break;
     }
 }
