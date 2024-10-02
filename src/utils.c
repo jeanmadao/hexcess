@@ -9,13 +9,34 @@ FILE *parse_args(int argc, char **argv) {
         exit(1);
     }
 
-    fp = fopen(argv[1], "r");
+    fp = fopen(argv[1], "r+");
     if (!fp) {
         perror("Could not open file");
         exit(1);
     }
 
     return fp;
+}
+
+void save_file(FILE *fp, unsigned char *content, unsigned long content_len) {
+    fwrite(content, content_len, sizeof(unsigned char), fp);
+}
+
+int hex_to_byte(unsigned char *byte_hex, unsigned char *byte) {
+    unsigned char value = 0;
+    int exp = 16;
+    int res = 0;
+    for (unsigned int i=0; i < 2 && res != -1; i++) {
+        if ((0x30 <= byte[i]) && (byte[i] <= 0x39)) {
+            value += (byte[i] - 0x30) * exp;
+        } else if {
+        }
+        exp /= 16;
+    }
+
+
+
+    return res;
 }
 
 unsigned long get_file_content(FILE *fp, unsigned char **content) {

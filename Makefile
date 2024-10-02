@@ -1,6 +1,6 @@
 NAME			:= hexcess
 CC				:= gcc
-CFLAGS			:= -Wall -Wextra -Werror
+CFLAGS			:= -Wall -Wextra #-Werror
 FLAGS			:= -DNCURSES_WIDECHAR=1
 SRC_DIR 		:= src
 BUILD_DIR 		:= build

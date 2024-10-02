@@ -261,7 +261,6 @@ void resize_windows(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,
     cur->j = 0;
 }
 
-
 void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
                    settings *sett, unsigned char *content,
                    unsigned long content_len,  cursor *cur) {
@@ -273,10 +272,8 @@ void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
 
     target_top_line_index = (int)sett->top_line_index + value * (int)sett->bytes_per_line;
     max_top_line_index = content_len - (sett->hex_nlines - 1) * sett->bytes_per_line - content_len%sett->bytes_per_line;
-    if (content_len%sett->bytes_per_line == 0) {
+    if (content_len%sett->bytes_per_line == 0)
         max_top_line_index -= sett->bytes_per_line;
-
-    }
 
     if (target_top_line_index < 0) {
         value -= target_top_line_index / (int)sett->bytes_per_line;
@@ -320,6 +317,17 @@ void scroll_windows(WINDOW *hex_win, WINDOW *plain_win, int value,
     }
 }
 
+
+void replace_byte(WINDOW *hex_win, cursor *cur, unsigned int i, unsigned j) {
+    unsigned char byte_hex[2];
+    mvwprintw(hex_win, i, 11 + j * 2 + j/2, "  ");
+    for (unsigned int k=0; k < 2; k++){
+        byte_hex[k] = wgetch(hex_win);
+        mvwaddch(hex_win ,i, 11 + j * 2 + j/2 + k, byte_hex[k]);
+    }
+
+}
+
 void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,cursor *cur, settings *sett,
                 unsigned char *content, unsigned long content_len, int *run) {
     int key;
@@ -353,6 +361,9 @@ void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,cursor 
             break;
         case '$':
             move_cursor(hex_win, plain_win, cur, sett, content, content_len, cur->i, sett->bytes_per_line - 1);
+            break;
+        case 'r':
+            replace_byte(hex_win, cur, cur->i, cur->j);
             break;
         /*case 'G':*/
         /*    break;*/

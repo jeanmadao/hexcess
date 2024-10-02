@@ -15,7 +15,6 @@ int main(int argc, char **argv) {
 
     fp = parse_args(argc, argv);
     content_len = get_file_content(fp, &content);
-    fclose(fp);
 
     init_tui();
     init_windows(&hex_win, &plain_win, &controls_win, &sett, &cur);
@@ -32,6 +31,7 @@ int main(int argc, char **argv) {
     }
     end_windows(hex_win, plain_win, controls_win);
     end_tui();
+    fclose(fp);
 
     return 0;
 }
