@@ -170,6 +170,11 @@ void display_windows(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,
     wprintw(controls_win, " <q> | ");
     wattroff(controls_win, A_BOLD);
 
+    wprintw(controls_win, "Save");
+    wattron(controls_win, A_BOLD);
+    wprintw(controls_win, " <Ctrl-S> | ");
+    wattroff(controls_win, A_BOLD);
+
     wprintw(controls_win, "Left");
     wattron(controls_win, A_BOLD);
     wprintw(controls_win, " <h> | ");
@@ -401,7 +406,7 @@ void handle_key(WINDOW *hex_win, WINDOW *plain_win, WINDOW *controls_win,
             scroll_windows(hex_win, plain_win, -(sett->hex_nlines / 2), sett, content, content_len, cur);
             break;
         case ctrl('s'):
-            mvprintw(0, 0, "%lu", save_file(content, content_len, filename));
+            save_file(content, content_len, filename);
             break;
     }
 }
