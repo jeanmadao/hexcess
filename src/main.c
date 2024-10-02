@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     init_windows(&hex_win, &plain_win, &controls_win, &settings, &cur);
     display_windows(hex_win, plain_win, controls_win, &settings, content, content_len, &cur);
 
-    while(run) {
+    while (run) {
 
         refresh();
         wrefresh(hex_win);
