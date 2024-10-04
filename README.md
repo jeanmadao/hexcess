@@ -8,7 +8,7 @@ hexcess is a (yet another) Ncurses-based hex viewer and editor as well.
 It supports basics VIM keybindings for navigating through the hexdump more
 easily, more will be supported soon.
 
-![Screenshot of hexcess](assets/screen.png)
+![Screenshot of hexcess](assets/hexcess.gif)
 
 ## Build
 ```bash
